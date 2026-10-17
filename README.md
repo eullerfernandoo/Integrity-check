@@ -153,3 +153,7 @@ Além dos testes automatizados, o projeto foi validado manualmente nos cenários
 ## Autor
 
 Desenvolvido por Euller como projeto de estudo de segurança e escrita de scripts em Python.
+
+## Projeto original
+
+Este projeto foi feito como solução do desafio: [Verificador de Integridade de Arquivos](https://roadmap.sh/projects/file-integrity-checker)
