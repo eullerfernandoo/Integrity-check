@@ -84,4 +84,72 @@ Exemplos de saída do `check`:
 
 ## Protegendo o banco de hashes (HMAC)
 
-Quem consegue alterar um log também pode tentar alterar o banco de hashes para esconder a
+Quem consegue alterar um log também pode tentar alterar o banco de hashes para esconder a adulteração. Para detectar isso, defina uma chave secreta antes de usar a ferramenta.
+
+No CMD (Windows):
+
+```
+set INTEGRITY_KEY=sua-chave-aqui
+```
+
+No PowerShell:
+
+```
+$env:INTEGRITY_KEY="sua-chave-aqui"
+```
+
+No Linux ou macOS:
+
+```
+export INTEGRITY_KEY="sua-chave-aqui"
+```
+
+Com a chave definida, o banco é gravado com uma assinatura HMAC-SHA256. Se alguém editar o `hashes.json` manualmente, o `check` aborta com o alerta:
+
+```
+ALERTA: o próprio banco de hashes foi adulterado (HMAC inválido)!
+```
+
+> ⚠️ Nunca coloque a chave no código nem no repositório. Ela deve existir apenas como variável de ambiente.
+
+## Testes
+
+```
+pip install pytest
+pytest -v
+```
+
+Resultado esperado:
+
+```
+test_integrity.py::test_hash_bate_com_hashlib PASSED
+1 passed
+```
+
+Além dos testes automatizados, o projeto foi validado manualmente nos cenários: sem mudanças, arquivo modificado, mudança aceita com `update`, arquivo removido, arquivo novo e banco adulterado (com HMAC).
+
+## Limitações
+
+- Sem HMAC, quem consegue alterar o banco de hashes consegue esconder a adulteração
+- Logs ativos (em uso, como o `syslog`) mudam o tempo todo, então a ferramenta faz mais sentido para logs arquivados ou rotacionados
+- A ferramenta **detecta** adulteração, mas não a impede
+- A permissão restrita (`600`) do banco só tem efeito em sistemas Unix; no Windows, ela não se aplica da mesma forma
+
+## Possíveis melhorias futuras
+
+- [ ] Mais testes automatizados (arquivo modificado, removido, novo, `update`, HMAC)
+- [ ] Opção `--report` para listar apenas os arquivos com divergência
+- [ ] Guardar também tamanho, data de modificação e dono do arquivo
+- [ ] Cadeia de hashes (hash encadeado) para logs que crescem continuamente
+- [ ] Log de auditoria das próprias verificações
+- [ ] Agendamento automático (cron ou Agendador de Tarefas) com alerta por e-mail
+
+## Tecnologias
+
+- Python 3.8+ (`hashlib`, `hmac`, `argparse`, `json`)
+- pytest
+- Visual Studio Code
+
+## Autor
+
+Desenvolvido por Euller como projeto de estudo de segurança e escrita de scripts em Python.
